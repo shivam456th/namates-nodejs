@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "nodemon database.js"
+    "start": "nodemon ./src/appPractice.js"
   },
   "dependencies": {
     "express": "^5.1.0",
