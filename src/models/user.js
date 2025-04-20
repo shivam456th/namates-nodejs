@@ -13,33 +13,26 @@ const userSchema = mongoose.Schema({
     },
     emailId: {
         type:"String",
-        lowercase:true,
-        trim: true,
-        default: "Add Email Address skills"
     },
     password: {
         type:"String",
-        default: "Add valid password skills"
+        default: "Add valid password "
     },
     age: {
         type:Number,
-        min:18,
-        max:50,
-        default: "Add Age skills"
     },
     gender: {
         type:"String",
-        validate(value){
-            if (!["male", "female", "other"].includes(value)) {
-                throw new Error ("Gender data is not Valid");
-            }
-        },
-        // enum: ['male', 'female'],
+        enum: ['male', 'female',"other"],
         lowercase: true,
         default: "Add your Gender male, female, other"
     },
+    about:{
+        type: "String",
+    },
     skills: {
-        type:[String], default: "Add your skills"
+        type:[String],
+        default: "Add your skills"
 
     },
 },
