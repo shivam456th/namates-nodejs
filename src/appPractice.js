@@ -3,10 +3,13 @@ const connectDB = require("./config/datadase.js");
 const User = require("./models/user.js");
 const { validateSignUpDate } = require("./utils/validtion.js");
 const bcrypt = require("bcrypt");
+const cookieParser = require ("cookie-parser")
+const jwt = require ('jsonwebtoken');
+const { userAuth } = require("./middleware/auth2.js");
 const app = express();
 
 app.use(express.json());
-
+app.use(cookieParser())
 app.post("/signup", async (req, res) => {
   try {
     validateSignUpDate(req);
@@ -32,21 +35,36 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const {emailId, password} = req.body;
-    const user = await User.findOne({emailId: emailId});
+    const user = await User.findOne({emailId});
     if (!user) {
-      throw new Error("EmailId id not present in DB")
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+      throw new Error ("Email is not Correct")
+    } 
+    const isPasswordHash = await bcrypt.compare(password, user.password)
+    if (isPasswordHash) {
+      //create a JWT Token
+      const token = await jwt.sign({_id: user._id}, "DEV@Tinderr$123")
+      console.log(token);
 
-    if (isPasswordValid) {
-      res.send("Login Successfully!!");
+      //Add the token cookie and send response back to the user
+      res.cookie("token", token);
+      res.send("Login Successful!")
     } else {
-      throw new Error ("Password not correct");
+      throw new Error("Invalid credentials")
     }
   } catch (error) {
-    res.status(400).send("Error: " + error.message);
+    res.status(500).send("ERROR : " + error.message)
   }
 })
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const user = req.cookies;
+    res.send(user)
+  } catch (error) {
+    res.status(500).send("ERROR : " + error.message);
+  }
+})
+
 
 // Get
 app.get("/user", async (req, res) => {
